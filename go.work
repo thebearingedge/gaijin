@@ -1,3 +1,6 @@
 go 1.20
 
-use ./simple-unit-tests
+use (
+	./expressive-unit-tests
+	./simple-unit-tests
+)
