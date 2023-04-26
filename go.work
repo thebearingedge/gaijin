@@ -2,5 +2,6 @@ go 1.20
 
 use (
 	./expressive-unit-tests
+	./http-stubs
 	./simple-unit-tests
 )
