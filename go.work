@@ -1,6 +1,7 @@
 go 1.20
 
 use (
+	./repository
 	./expressive-unit-tests
 	./http-stubs
 	./simple-unit-tests
