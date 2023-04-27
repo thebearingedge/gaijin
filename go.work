@@ -5,4 +5,5 @@ use (
 	./http-stubs
 	./simple-unit-tests
 	./web-server
+	./write-to-stderr
 )
