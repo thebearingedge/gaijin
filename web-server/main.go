@@ -8,7 +8,8 @@ import (
 )
 
 func createApp() *gin.Engine {
-	r := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	r := gin.New()
 	r.GET("/hello", func(c *gin.Context) {
 		c.String(200, "world")
 	})

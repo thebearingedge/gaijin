@@ -12,6 +12,9 @@ new module:
 test module:
   go test -v {{module}}
 
+tdd module:
+  gow -c -w $(basename {{module}}) test -v {{module}}
+
 cover module:
   #!/bin/sh
   MOD=$(basename {{module}})
