@@ -20,3 +20,6 @@ cover module:
 
 add module package:
   @pushd {{module}} && go get {{package}}
+
+run module:
+  go run -C {{module}} main.go
