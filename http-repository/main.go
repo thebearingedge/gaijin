@@ -1,10 +1,10 @@
 package main
 
 import (
+	"http-repository/json"
 	"log"
 	"net/http"
 	"os"
-	"repository/json"
 )
 
 type User struct {
