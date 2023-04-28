@@ -27,7 +27,7 @@ func main() {
 	stdout := log.New(os.Stdout, "info - ", 0)
 	stderr := log.New(os.Stderr, "error - ", 0)
 
-	usersData := json.NewFetcher[User](*http.DefaultClient, userURL)
+	usersData := json.NewFetcher[User](http.DefaultClient, userURL)
 
 	if user, err := usersData.FetchById("1"); err != nil {
 		stderr.Printf("user error is: %v\n", err)
@@ -35,7 +35,7 @@ func main() {
 		stdout.Printf("user data is: %#v\n", user)
 	}
 
-	postsData := json.NewFetcher[Post](*http.DefaultClient, postsURL)
+	postsData := json.NewFetcher[Post](http.DefaultClient, postsURL)
 
 	if posts, err := postsData.FetchWhere("userId=1"); err != nil {
 		stderr.Printf("posts error is %v\n", err)
