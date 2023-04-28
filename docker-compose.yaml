@@ -1,0 +1,29 @@
+services:
+
+  database:
+    image: docker.io/postgres:15.2-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} || exit 1
+      interval: 5s
+      start_period: 5s
+
+  admin:
+    image: docker.io/sosedoff/pgweb:0.14.0
+    environment:
+      PGWEB_DATABASE_URL: ${PGWEB_DATABASE_URL}
+    ports:
+      - 8081:8081
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  pg_data:

@@ -1,3 +1,5 @@
+set dotenv-load
+
 [private]
 default:
   @just --list
@@ -6,7 +8,7 @@ new module:
   #!/bin/sh
   mkdir -p {{module}}
   pushd {{module}} > /dev/null && go mod init {{module}} && popd
-  touch {{module}}/main.go
+  echo -e "package main" >> {{module}}/main.go
   go work use {{module}}
 
 test module:
@@ -26,3 +28,21 @@ add module package:
 
 run module:
   go run -C {{module}} main.go
+
+clean module:
+  pushd {{module}} && go mod tidy
+
+compose_up:
+  docker compose up --build --detach
+
+compose_down:
+  docker compose down -v
+
+db_create name:
+  migrate create -ext sql -dir with-db/migrations {{name}}
+
+db_up:
+  migrate -source file://./with-db/migrations -database $DATABASE_URL up
+
+db_down:
+  migrate -source file://./with-db/migrations -database $DATABASE_URL down --all

@@ -1,10 +1,11 @@
 go 1.20
 
 use (
-	./http-repository
 	./expressive-unit-tests
+	./http-repository
 	./http-stubs
 	./simple-unit-tests
 	./web-server
+	./with-db
 	./write-to-stderr
 )
