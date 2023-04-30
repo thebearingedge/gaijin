@@ -5,6 +5,7 @@ use (
 	./http-repository
 	./http-stubs
 	./simple-unit-tests
+	./todo-app
 	./web-server
 	./with-db
 	./write-to-stderr

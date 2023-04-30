@@ -8,19 +8,23 @@ new module:
   #!/bin/sh
   mkdir -p {{module}}
   pushd {{module}} > /dev/null && go mod init {{module}} && popd
-  echo -e "package main" >> {{module}}/main.go
+  echo "package main" >> {{module}}/main.go
   go work use {{module}}
 
 test module:
-  go test -v {{module}}
+  #!/bin/sh
+  MOD=$(basename {{module}})
+  go test -v $MOD/...
 
 tdd module:
-  gow -c -w $(basename {{module}}) test -v {{module}}
+  #!/bin/sh
+  MOD=$(basename {{module}})
+  gow -c -w $MOD test -v $MOD/...
 
 cover module:
   #!/bin/sh
   MOD=$(basename {{module}})
-  go test -v $MOD -coverprofile .coverage/$MOD.out
+  go test -v $MOD/... -coverprofile .coverage/$MOD.out
   go tool cover -html=.coverage/$MOD.out -o .coverage/$MOD.html
 
 add module package:
