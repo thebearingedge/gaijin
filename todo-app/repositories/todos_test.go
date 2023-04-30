@@ -1,4 +1,4 @@
-package repository
+package repositories
 
 import (
 	"database/sql"
@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	. "todo-app/data"
 
 	"github.com/google/uuid"
 )
@@ -23,7 +24,7 @@ func startTransaction(t *testing.T) *sql.Tx {
 }
 
 func TestEmptyTableGetsNoRows(t *testing.T) {
-	r := NewRepository(startTransaction(t))
+	r := NewTodosRepository(startTransaction(t))
 	todos, err := r.GetAll()
 	if err != nil {
 		t.Fatalf("%v", err)
@@ -37,7 +38,7 @@ func TestEmptyTableGetsNoRows(t *testing.T) {
 
 func TestPopulatedTableGetsAllRows(t *testing.T) {
 	tx := startTransaction(t)
-	r := NewRepository(tx)
+	r := NewTodosRepository(tx)
 	_, err := tx.Exec(`--sql
 		insert into "todos" ("task")
 		values ('Learn Go'),
@@ -59,7 +60,7 @@ func TestPopulatedTableGetsAllRows(t *testing.T) {
 }
 
 func TestEmptyTableGetsOneNilTodo(t *testing.T) {
-	r := NewRepository(startTransaction(t))
+	r := NewTodosRepository(startTransaction(t))
 	want := errors.New("sql: no rows in result set")
 	_, got := r.GetOne(uuid.New())
 	if !strings.Contains(got.Error(), want.Error()) {
@@ -68,7 +69,7 @@ func TestEmptyTableGetsOneNilTodo(t *testing.T) {
 }
 
 func TestEmptyTableUpdatesOneNilTodo(t *testing.T) {
-	r := NewRepository(startTransaction(t))
+	r := NewTodosRepository(startTransaction(t))
 	want := errors.New("sql: no rows in result set")
 	_, got := r.UpdateOne(Todo{ID: uuid.New(), Task: ""})
 	if !strings.Contains(got.Error(), want.Error()) {
@@ -77,7 +78,7 @@ func TestEmptyTableUpdatesOneNilTodo(t *testing.T) {
 }
 
 func TestCreatesOneTodo(t *testing.T) {
-	r := NewRepository(startTransaction(t))
+	r := NewTodosRepository(startTransaction(t))
 	todo, err := r.CreateOne(Todo{Task: "Learn Go"})
 	if err != nil {
 		t.Fatalf("%v", err)
@@ -92,7 +93,7 @@ func TestCreatesOneTodo(t *testing.T) {
 
 func TestNonEmptyTableGetsOneTodo(t *testing.T) {
 	tx := startTransaction(t)
-	r := NewRepository(tx)
+	r := NewTodosRepository(tx)
 	id := uuid.New()
 	_, err := tx.Exec(`--sql
 		insert into "todos" ("todoId", "task")
@@ -112,7 +113,7 @@ func TestNonEmptyTableGetsOneTodo(t *testing.T) {
 
 func TestNonEmptyTableUpdatesOneTodo(t *testing.T) {
 	tx := startTransaction(t)
-	r := NewRepository(tx)
+	r := NewTodosRepository(tx)
 	id := uuid.New()
 	_, err := tx.Exec(`--sql
 		insert into "todos" ("todoId", "task")

@@ -1,9 +1,9 @@
-package repository
+package repositories
 
 import (
 	"database/sql"
 	"fmt"
-	"time"
+	. "todo-app/data"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -18,7 +18,7 @@ type TodosRepository struct {
 	db DB
 }
 
-func NewRepository(db DB) *TodosRepository {
+func NewTodosRepository(db DB) *TodosRepository {
 	return &TodosRepository{db}
 }
 
@@ -35,7 +35,7 @@ func (r *TodosRepository) CreateOne(t Todo) (*Todo, error) {
 	`, t.Task, t.IsCompleted)
 	err := row.Scan(&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt)
 	if err != nil {
-		return nil, fmt.Errorf("TodosRepository.CreateOne could not scan row - %w", err)
+		return nil, fmt.Errorf("could not scan row - %w", err)
 	}
 	return &todo, nil
 }
@@ -56,7 +56,7 @@ func (r *TodosRepository) UpdateOne(t Todo) (*Todo, error) {
 	`, t.Task, t.IsCompleted, t.ID)
 	err := row.Scan(&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt)
 	if err != nil {
-		return nil, fmt.Errorf("TodosRepository.CreateOne could not scan row - %w", err)
+		return nil, fmt.Errorf("could not scan row - %w", err)
 	}
 	return &todo, nil
 }
@@ -74,7 +74,7 @@ func (r *TodosRepository) GetOne(id uuid.UUID) (*Todo, error) {
 	`, id)
 	err := row.Scan(&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt)
 	if err != nil {
-		return nil, fmt.Errorf("TodosRepository.GetOne could not scan row - %w", err)
+		return nil, fmt.Errorf("could not scan row - %w", err)
 	}
 	return &todo, nil
 }
@@ -89,26 +89,19 @@ func (r *TodosRepository) GetAll() (*[]Todo, error) {
 		  from "todos"
 	`)
 	if err != nil {
-		return nil, fmt.Errorf("TodosRepository.GetAll could not query database - %w", err)
+		return nil, fmt.Errorf("could not query database - %w", err)
 	}
 	todos := make([]Todo, 0)
+	defer rows.Close()
 	for rows.Next() {
 		todo := Todo{}
 		err := rows.Scan(
 			&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("TodosRepository.GetAll could not scan rows - %w", err)
+			return nil, fmt.Errorf("could not scan rows - %w", err)
 		}
 		todos = append(todos, todo)
 	}
 	return &todos, nil
-}
-
-type Todo struct {
-	ID          uuid.UUID `json:"todoId"`
-	Task        string    `json:"task"`
-	IsCompleted bool      `json:"isCompleted"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
 }
