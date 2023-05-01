@@ -22,7 +22,7 @@ func TestEmptyTableGetsNoRows(t *testing.T) {
 	r := NewTodosRepository(startTransaction(t))
 	todos, err := r.GetAll()
 	assert.Nil(t, err)
-	assert.Equal(t, len(*todos), 0)
+	assert.Len(t, *todos, 0)
 }
 
 func TestPopulatedTableGetsAllRows(t *testing.T) {

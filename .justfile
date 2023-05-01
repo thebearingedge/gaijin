@@ -12,14 +12,10 @@ new module:
   go work use {{module}}
 
 test module:
-  #!/bin/sh
-  MOD=$(basename {{module}})
-  go test -v $MOD/...
+  go test -v {{module}}
 
 tdd module:
-  #!/bin/sh
-  MOD=$(basename {{module}})
-  gow -c -w $MOD test -v $MOD/...
+  gow -c -w {{module}} test -v {{module}}
 
 cover module:
   #!/bin/sh
