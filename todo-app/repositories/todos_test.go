@@ -67,7 +67,7 @@ func TestEmptyTableGetsOneNilTodo(t *testing.T) {
 
 func TestEmptyTableUpdatesOneNilTodo(t *testing.T) {
 	r := NewTodosRepository(startTransaction(t))
-	todo, _ := r.UpdateOne(Todo{ID: uuid.New(), Task: ""})
+	todo, _ := r.UpdateOne(uuid.New(), Todo{Task: ""})
 	if todo != nil {
 		t.Errorf("got %v, want %v", todo, nil)
 	}
@@ -115,7 +115,7 @@ func TestNonEmptyTableUpdatesOneTodo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
-	todo, err := r.UpdateOne(Todo{ID: id, Task: "Accept Go"})
+	todo, err := r.UpdateOne(id, Todo{Task: "Accept Go"})
 	if err != nil {
 		t.Fatalf("todo not updated: %v", err)
 	}

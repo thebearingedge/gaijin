@@ -2,12 +2,10 @@ package data
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Todo struct {
-	ID          uuid.UUID `json:"todoId"`
+	ID          string    `json:"todoId"`
 	Task        string    `json:"task"`
 	IsCompleted bool      `json:"isCompleted"`
 	CreatedAt   time.Time `json:"createdAt"`

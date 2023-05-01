@@ -43,7 +43,7 @@ func (r *TodosRepository) CreateOne(t Todo) (*Todo, error) {
 	return &todo, nil
 }
 
-func (r *TodosRepository) UpdateOne(t Todo) (*Todo, error) {
+func (r *TodosRepository) UpdateOne(id uuid.UUID, t Todo) (*Todo, error) {
 	var todo Todo
 	row := r.db.QueryRow(`--sql
 		update "todos"
@@ -56,7 +56,7 @@ func (r *TodosRepository) UpdateOne(t Todo) (*Todo, error) {
 				  "isCompleted",
 				  "createdAt",
 				  "updatedAt"
-	`, t.Task, t.IsCompleted, t.ID)
+	`, t.Task, t.IsCompleted, id)
 	err := row.Scan(&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
