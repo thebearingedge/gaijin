@@ -9,11 +9,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type DB interface {
-	Query(string, ...any) (*sql.Rows, error)
-	QueryRow(string, ...any) *sql.Row
-}
-
 type TodosRepository struct {
 	db DB
 }
