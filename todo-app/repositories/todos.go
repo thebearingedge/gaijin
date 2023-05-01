@@ -34,6 +34,9 @@ func (r *TodosRepository) CreateOne(t Todo) (*Todo, error) {
 				  "updatedAt"
 	`, t.Task, t.IsCompleted)
 	err := row.Scan(&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("could not scan row - %w", err)
 	}
@@ -55,6 +58,9 @@ func (r *TodosRepository) UpdateOne(t Todo) (*Todo, error) {
 				  "updatedAt"
 	`, t.Task, t.IsCompleted, t.ID)
 	err := row.Scan(&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("could not scan row - %w", err)
 	}
@@ -73,6 +79,9 @@ func (r *TodosRepository) GetOne(id uuid.UUID) (*Todo, error) {
 		 where "todoId" = $1
 	`, id)
 	err := row.Scan(&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, fmt.Errorf("could not scan row - %w", err)
 	}

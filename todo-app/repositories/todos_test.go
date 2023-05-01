@@ -2,9 +2,7 @@ package repositories
 
 import (
 	"database/sql"
-	"errors"
 	"os"
-	"strings"
 	"testing"
 	. "todo-app/data"
 
@@ -61,19 +59,17 @@ func TestPopulatedTableGetsAllRows(t *testing.T) {
 
 func TestEmptyTableGetsOneNilTodo(t *testing.T) {
 	r := NewTodosRepository(startTransaction(t))
-	want := errors.New("sql: no rows in result set")
-	_, got := r.GetOne(uuid.New())
-	if !strings.Contains(got.Error(), want.Error()) {
-		t.Errorf("got %v, want %v", got, want)
+	todo, _ := r.GetOne(uuid.New())
+	if todo != nil {
+		t.Errorf("got %v, want %v", todo, nil)
 	}
 }
 
 func TestEmptyTableUpdatesOneNilTodo(t *testing.T) {
 	r := NewTodosRepository(startTransaction(t))
-	want := errors.New("sql: no rows in result set")
-	_, got := r.UpdateOne(Todo{ID: uuid.New(), Task: ""})
-	if !strings.Contains(got.Error(), want.Error()) {
-		t.Errorf("got %v, want %v", got, want)
+	todo, _ := r.UpdateOne(Todo{ID: uuid.New(), Task: ""})
+	if todo != nil {
+		t.Errorf("got %v, want %v", todo, nil)
 	}
 }
 
@@ -82,9 +78,6 @@ func TestCreatesOneTodo(t *testing.T) {
 	todo, err := r.CreateOne(Todo{Task: "Learn Go"})
 	if err != nil {
 		t.Fatalf("%v", err)
-	}
-	if &todo.ID == nil {
-		t.Errorf("todoId not created: got %v", todo)
 	}
 	if todo.Task != "Learn Go" {
 		t.Errorf("todo not created: got %v", todo)

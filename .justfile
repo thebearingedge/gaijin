@@ -31,7 +31,7 @@ add module package:
   @pushd {{module}} && go get {{package}}
 
 run module:
-  go run -C {{module}} main.go
+  gow run -C {{module}} main.go
 
 clean module:
   pushd {{module}} && go mod tidy
