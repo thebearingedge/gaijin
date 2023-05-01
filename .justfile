@@ -41,8 +41,8 @@ compose_down:
 db_create name:
   migrate create -ext sql -dir with-db/migrations {{name}}
 
-db_up:
-  migrate -source file://./with-db/migrations -database $DATABASE_URL up
+db_up module:
+  migrate -source file://./{{module}}/migrations -database $DATABASE_URL up
 
-db_down:
-  migrate -source file://./with-db/migrations -database $DATABASE_URL down --all
+db_down module:
+  migrate -source file://./{{module}}/migrations -database $DATABASE_URL down --all

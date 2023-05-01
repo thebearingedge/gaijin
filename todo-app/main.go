@@ -6,7 +6,7 @@ import (
 	"os"
 	. "todo-app/data"
 	. "todo-app/handlers"
-	. "todo-app/repositories"
+	. "todo-app/repository"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -31,8 +31,7 @@ func main() {
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "could not connect to database - %v", err)
-		os.Exit(1)
+		panic(err)
 	}
 
 	gin.SetMode(gin.ReleaseMode)
