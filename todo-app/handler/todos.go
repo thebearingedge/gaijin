@@ -9,21 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type Todos interface {
-	GetAll() (*[]Todo, error)
-	GetOne(id uuid.UUID) (*Todo, error)
-	UpdateOne(id uuid.UUID, t Todo) (*Todo, error)
-	CreateOne(t Todo) (*Todo, error)
-}
-
-type TodosHandler struct {
-	todos Todos
-}
-
-func NewTodosHandler(t Todos) TodosHandler {
-	return TodosHandler{t}
-}
-
 type getAll interface {
 	GetAll() (*[]Todo, error)
 }
@@ -40,10 +25,10 @@ func GetAllTodos(t getAll) func(c *gin.Context) {
 }
 
 type getOneById interface {
-	GetOne(id uuid.UUID) (*Todo, error)
+	GetOneByID(id uuid.UUID) (*Todo, error)
 }
 
-func GetOneTodoById(t getOneById) func(c *gin.Context) {
+func GetOneTodoByID(t getOneById) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, ok := c.Params.Get("id")
 		if !ok {
@@ -55,7 +40,7 @@ func GetOneTodoById(t getOneById) func(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
-		todo, err := t.GetOne(todoId)
+		todo, err := t.GetOneByID(todoId)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -68,29 +53,35 @@ func GetOneTodoById(t getOneById) func(c *gin.Context) {
 	}
 }
 
-func (t TodosHandler) CreateOneTodo(c *gin.Context) {
-	var todo Todo
-	if err := c.ShouldBindJSON(&todo); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	if &todo.Task == nil || strings.TrimSpace(todo.Task) == "" {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	created, err := t.todos.CreateOne(todo)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	c.JSON(http.StatusCreated, created)
+type createOne interface {
+	CreateOne(todo Todo) (*Todo, error)
 }
 
-type UpdateOne interface {
+func CreateOneTodo(t createOne) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		var todo Todo
+		if err := c.ShouldBindJSON(&todo); err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		if &todo.Task == nil || strings.TrimSpace(todo.Task) == "" {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		created, err := t.CreateOne(todo)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusCreated, created)
+	}
+}
+
+type updateOne interface {
 	UpdateOne(id uuid.UUID, todo Todo) (*Todo, error)
 }
 
-func UpdateOneByID(t UpdateOne) func(c *gin.Context) {
+func UpdateOneTodoByID(t updateOne) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, ok := c.Params.Get("id")
 		if !ok {

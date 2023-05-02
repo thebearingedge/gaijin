@@ -33,7 +33,7 @@ func (r *TodosRepository) CreateOne(t Todo) (*Todo, error) {
 		return nil, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("could not scan row - %w", err)
+		return nil, fmt.Errorf("scanning row: %w", err)
 	}
 	return &todo, nil
 }
@@ -57,12 +57,12 @@ func (r *TodosRepository) UpdateOne(id uuid.UUID, t Todo) (*Todo, error) {
 		return nil, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("could not scan row - %w", err)
+		return nil, fmt.Errorf("scanning row: %w", err)
 	}
 	return &todo, nil
 }
 
-func (r *TodosRepository) GetOne(id uuid.UUID) (*Todo, error) {
+func (r *TodosRepository) GetOneByID(id uuid.UUID) (*Todo, error) {
 	var todo Todo
 	row := r.db.QueryRow(`--sql
 		select "todoId",
@@ -78,7 +78,7 @@ func (r *TodosRepository) GetOne(id uuid.UUID) (*Todo, error) {
 		return nil, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("could not scan row - %w", err)
+		return nil, fmt.Errorf("scanning row: %w", err)
 	}
 	return &todo, nil
 }
@@ -93,7 +93,7 @@ func (r *TodosRepository) GetAll() (*[]Todo, error) {
 		  from "todos"
 	`)
 	if err != nil {
-		return nil, fmt.Errorf("could not query database - %w", err)
+		return nil, fmt.Errorf("querying database: %w", err)
 	}
 	todos := make([]Todo, 0)
 	defer rows.Close()
@@ -103,7 +103,7 @@ func (r *TodosRepository) GetAll() (*[]Todo, error) {
 			&todo.ID, &todo.Task, &todo.IsCompleted, &todo.CreatedAt, &todo.UpdatedAt,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("could not scan rows - %w", err)
+			return nil, fmt.Errorf("scanning row: %w", err)
 		}
 		todos = append(todos, todo)
 	}

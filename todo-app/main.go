@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"todo-app/data"
 	"todo-app/handler"
@@ -17,14 +16,11 @@ func CreateApp(db data.DB) *gin.Engine {
 
 	repo := NewTodosRepository(db)
 
-	todoHandler := handler.NewTodosHandler(repo)
-
-	todoRoutes := app.Group("/v1/todos")
-
-	todoRoutes.GET("", handler.GetAllTodos(repo))
-	todoRoutes.GET("/:id", handler.GetOneTodoById(repo))
-	todoRoutes.POST("", todoHandler.CreateOneTodo)
-	todoRoutes.PUT("/:id", handler.UpdateOneByID(repo))
+	app.Group("/v1/todos").
+		GET("", handler.GetAllTodos(repo)).
+		GET("/:id", handler.GetOneTodoByID(repo)).
+		POST("", handler.CreateOneTodo(repo)).
+		PUT("/:id", handler.UpdateOneTodoByID(repo))
 
 	return app
 }
@@ -36,8 +32,6 @@ func main() {
 		panic(err)
 	}
 
-	gin.SetMode(gin.ReleaseMode)
-
 	app := CreateApp(db)
 
 	app.Use(
@@ -45,8 +39,9 @@ func main() {
 		gin.Recovery(),
 	)
 
+	gin.SetMode(gin.ReleaseMode)
+
 	if err := app.Run(os.Getenv("LISTEN_ADDRESS")); err != nil {
-		fmt.Fprintf(os.Stderr, "could start the app - %v", err)
-		os.Exit(1)
+		panic(err)
 	}
 }

@@ -42,7 +42,7 @@ func TestPopulatedTableGetsAllRows(t *testing.T) {
 
 func TestEmptyTableGetsOneNilTodo(t *testing.T) {
 	r := NewTodosRepository(startTransaction(t))
-	todo, err := r.GetOne(uuid.New())
+	todo, err := r.GetOneByID(uuid.New())
 	assert.Nil(t, err)
 	assert.Nil(t, todo)
 }
@@ -70,7 +70,7 @@ func TestNonEmptyTableGetsOneTodo(t *testing.T) {
 		values ($1, 'Learn Go')
 	`, id)
 	assert.Nil(t, err)
-	todo, err := r.GetOne(id)
+	todo, err := r.GetOneByID(id)
 	assert.Nil(t, err)
 	assert.Equal(t, todo.Task, "Learn Go")
 
