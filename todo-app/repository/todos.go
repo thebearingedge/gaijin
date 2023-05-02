@@ -9,21 +9,21 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type TodosRepository struct {
+type TodoRepository struct {
 	db DB
 }
 
-func NewTodosRepository(db DB) *TodosRepository {
-	return &TodosRepository{db}
+func NewTodoRepository(db DB) *TodoRepository {
+	return &TodoRepository{db}
 }
 
-func (r *TodosRepository) CreateOne(t Todo) (*Todo, error) {
+func (r *TodoRepository) CreateOne(t Todo) (*Todo, error) {
 	var todo Todo
 	row := r.db.QueryRow(`--sql
 		insert into "todos" ("task", "isCompleted")
 		values ($1, $2)
 		returning "todoId",
-		          "task",
+				  "task",
 				  "isCompleted",
 				  "createdAt",
 				  "updatedAt"
@@ -38,7 +38,7 @@ func (r *TodosRepository) CreateOne(t Todo) (*Todo, error) {
 	return &todo, nil
 }
 
-func (r *TodosRepository) UpdateOne(id uuid.UUID, t Todo) (*Todo, error) {
+func (r *TodoRepository) UpdateOne(id uuid.UUID, t Todo) (*Todo, error) {
 	var todo Todo
 	row := r.db.QueryRow(`--sql
 		update "todos"
@@ -62,7 +62,7 @@ func (r *TodosRepository) UpdateOne(id uuid.UUID, t Todo) (*Todo, error) {
 	return &todo, nil
 }
 
-func (r *TodosRepository) GetOneByID(id uuid.UUID) (*Todo, error) {
+func (r *TodoRepository) GetOneByID(id uuid.UUID) (*Todo, error) {
 	var todo Todo
 	row := r.db.QueryRow(`--sql
 		select "todoId",
@@ -83,7 +83,7 @@ func (r *TodosRepository) GetOneByID(id uuid.UUID) (*Todo, error) {
 	return &todo, nil
 }
 
-func (r *TodosRepository) GetAll() (*[]Todo, error) {
+func (r *TodoRepository) GetAll() (*[]Todo, error) {
 	rows, err := r.db.Query(`--sql
 		select "todoId",
 			   "task",
@@ -95,7 +95,7 @@ func (r *TodosRepository) GetAll() (*[]Todo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("querying database: %w", err)
 	}
-	todos := make([]Todo, 0)
+	all := make([]Todo, 0)
 	defer rows.Close()
 	for rows.Next() {
 		todo := Todo{}
@@ -105,7 +105,7 @@ func (r *TodosRepository) GetAll() (*[]Todo, error) {
 		if err != nil {
 			return nil, fmt.Errorf("scanning row: %w", err)
 		}
-		todos = append(todos, todo)
+		all = append(all, todo)
 	}
-	return &todos, nil
+	return &all, nil
 }

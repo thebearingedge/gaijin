@@ -14,7 +14,7 @@ import (
 func CreateApp(db data.DB) *gin.Engine {
 	app := gin.New()
 
-	repo := NewTodosRepository(db)
+	repo := NewTodoRepository(db)
 
 	app.Group("/v1/todos").
 		GET("", handler.GetAllTodos(repo)).

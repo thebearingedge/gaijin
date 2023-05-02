@@ -22,7 +22,7 @@ func withRollback(t *testing.T, f func(*sql.Tx)) {
 
 func TestEmptyTableGetsNoRows(t *testing.T) {
 	withRollback(t, func(tx *sql.Tx) {
-		r := NewTodosRepository(tx)
+		r := NewTodoRepository(tx)
 		todos, err := r.GetAll()
 		assert.Nil(t, err)
 		assert.Len(t, *todos, 0)
@@ -31,7 +31,7 @@ func TestEmptyTableGetsNoRows(t *testing.T) {
 
 func TestPopulatedTableGetsAllRows(t *testing.T) {
 	withRollback(t, func(tx *sql.Tx) {
-		r := NewTodosRepository(tx)
+		r := NewTodoRepository(tx)
 		_, err := tx.Exec(`--sql
 			insert into "todos" ("task")
 			values ('Learn Go'),
@@ -47,34 +47,16 @@ func TestPopulatedTableGetsAllRows(t *testing.T) {
 
 func TestEmptyTableGetsOneNilTodo(t *testing.T) {
 	withRollback(t, func(tx *sql.Tx) {
-		r := NewTodosRepository(tx)
+		r := NewTodoRepository(tx)
 		todo, err := r.GetOneByID(uuid.New())
 		assert.Nil(t, err)
 		assert.Nil(t, todo)
 	})
 }
 
-func TestEmptyTableUpdatesOneNilTodo(t *testing.T) {
-	withRollback(t, func(tx *sql.Tx) {
-		r := NewTodosRepository(tx)
-		todo, err := r.UpdateOne(uuid.New(), Todo{Task: ""})
-		assert.Nil(t, err)
-		assert.Nil(t, todo)
-	})
-}
-
-func TestCreatesOneTodo(t *testing.T) {
-	withRollback(t, func(tx *sql.Tx) {
-		r := NewTodosRepository(tx)
-		todo, err := r.CreateOne(Todo{Task: "Learn Go"})
-		assert.Nil(t, err)
-		assert.Equal(t, todo.Task, "Learn Go")
-	})
-}
-
 func TestNonEmptyTableGetsOneTodo(t *testing.T) {
 	withRollback(t, func(tx *sql.Tx) {
-		r := NewTodosRepository(tx)
+		r := NewTodoRepository(tx)
 		id := uuid.New()
 		_, err := tx.Exec(`--sql
 			insert into "todos" ("todoId", "task")
@@ -87,9 +69,18 @@ func TestNonEmptyTableGetsOneTodo(t *testing.T) {
 	})
 }
 
+func TestEmptyTableUpdatesOneNilTodo(t *testing.T) {
+	withRollback(t, func(tx *sql.Tx) {
+		r := NewTodoRepository(tx)
+		todo, err := r.UpdateOne(uuid.New(), Todo{Task: ""})
+		assert.Nil(t, err)
+		assert.Nil(t, todo)
+	})
+}
+
 func TestNonEmptyTableUpdatesOneTodo(t *testing.T) {
 	withRollback(t, func(tx *sql.Tx) {
-		r := NewTodosRepository(tx)
+		r := NewTodoRepository(tx)
 		id := uuid.New()
 		_, err := tx.Exec(`--sql
 			insert into "todos" ("todoId", "task")
@@ -99,5 +90,14 @@ func TestNonEmptyTableUpdatesOneTodo(t *testing.T) {
 		todo, err := r.UpdateOne(id, Todo{Task: "Accept Go"})
 		assert.Nil(t, err)
 		assert.Equal(t, todo.Task, "Accept Go")
+	})
+}
+
+func TestCreatesOneTodo(t *testing.T) {
+	withRollback(t, func(tx *sql.Tx) {
+		r := NewTodoRepository(tx)
+		todo, err := r.CreateOne(Todo{Task: "Learn Go"})
+		assert.Nil(t, err)
+		assert.Equal(t, todo.Task, "Learn Go")
 	})
 }
