@@ -27,7 +27,13 @@ add module package:
   @pushd {{module}} && go get {{package}}
 
 run module:
+  go run -C {{module}} main.go
+
+watch module:
   gow run -C {{module}} main.go
+
+build module:
+  go build -C {{module}} -o "$(pwd)/.bin/$(basename {{module}})" main.go
 
 clean module:
   pushd {{module}} && go mod tidy
