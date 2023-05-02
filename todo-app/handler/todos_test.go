@@ -19,68 +19,72 @@ func init() {
 	gin.SetMode(gin.ReleaseMode)
 }
 
-type GetAllTodosError struct{}
+type StubGetAll struct {
+	stub func() ([]Todo, error)
+}
 
-func (r *GetAllTodosError) GetAll() (*[]Todo, error) {
-	return nil, errors.New("oops!")
+func (r StubGetAll) GetAll() ([]Todo, error) {
+	return r.stub()
+}
+
+func stubGetAll(f func() ([]Todo, error)) getAll {
+	return StubGetAll{f}
 }
 
 func TestGetAllTodosError(t *testing.T) {
-	handler := GetAllTodos(&GetAllTodosError{})
+	r := stubGetAll(func() ([]Todo, error) {
+		return nil, errors.New("oops!")
+	})
+	h := GetAllTodos(r)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	handler(c)
+	h(c)
 	assert.Equal(t, w.Code, http.StatusInternalServerError)
 	assert.Equal(t, w.Body.String(), "")
 }
 
-type GetAllTodosEmpty struct{}
-
-func (r *GetAllTodosEmpty) GetAll() (*[]Todo, error) {
-	todos := make([]Todo, 0)
-	return &todos, nil
-}
-
 func TestGetAllTodosEmpty(t *testing.T) {
-	handler := GetAllTodos(&GetAllTodosEmpty{})
+	r := stubGetAll(func() ([]Todo, error) {
+		return make([]Todo, 0), nil
+	})
+	h := GetAllTodos(r)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	handler(c)
+	h(c)
 	assert.Equal(t, w.Code, http.StatusOK)
-	want, _ := (&GetAllTodosEmpty{}).GetAll()
+	want, _ := r.GetAll()
 	var got []Todo
 	err := json.Unmarshal(w.Body.Bytes(), &got)
 	assert.Nil(t, err)
-	assert.Equal(t, want, &got)
-}
-
-type GetAllTodosPopulated struct{}
-
-func (r *GetAllTodosPopulated) GetAll() (*[]Todo, error) {
-	todos := []Todo{
-		{Task: "Learn Go"},
-		{Task: "Accept Go"},
-	}
-	return &todos, nil
+	assert.Equal(t, want, got)
 }
 
 func TestGetAllTodosPopulated(t *testing.T) {
-	handler := GetAllTodos(&GetAllTodosPopulated{})
+	r := stubGetAll(func() ([]Todo, error) {
+		return []Todo{{Task: "Learn Go"}, {Task: "Accept Go"}}, nil
+	})
+	h := GetAllTodos(r)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	handler(c)
+	h(c)
 	assert.Equal(t, http.StatusOK, w.Code)
-	want, _ := (&GetAllTodosPopulated{}).GetAll()
+	want, _ := r.GetAll()
 	var got []Todo
 	err := json.Unmarshal(w.Body.Bytes(), &got)
 	assert.Nil(t, err)
-	assert.Equal(t, want, &got)
+	assert.Equal(t, want, got)
 }
 
-type GetOneTodoNotFound struct{}
+type StubGetOneByID struct {
+	stub func(id uuid.UUID) (*Todo, error)
+}
 
-func (r *GetOneTodoNotFound) GetOneByID(id uuid.UUID) (*Todo, error) {
-	return nil, nil
+func (r StubGetOneByID) GetOneByID(id uuid.UUID) (*Todo, error) {
+	return r.stub(id)
+}
+
+func stubGetOneByID(f func(uuid.UUID) (*Todo, error)) getOneByID {
+	return StubGetOneByID{f}
 }
 
 func TestGetOneTodoNotFoundMissingIDParam(t *testing.T) {
@@ -109,12 +113,6 @@ func TestGetOneTodoNotFoundValidIDParam(t *testing.T) {
 	assert.Equal(t, w.Code, http.StatusNotFound)
 }
 
-type GetOneTodoError struct{}
-
-func (r *GetOneTodoError) GetOneByID(id uuid.UUID) (*Todo, error) {
-	return nil, errors.New("oops!")
-}
-
 func TestGetOneTodoErrorValidIDParam(t *testing.T) {
 	handler := GetOneTodoByID(&GetOneTodoError{})
 	w := httptest.NewRecorder()
@@ -122,12 +120,6 @@ func TestGetOneTodoErrorValidIDParam(t *testing.T) {
 	c.Params = append(c.Params, gin.Param{Key: "id", Value: uuid.NewString()})
 	handler(c)
 	assert.Equal(t, w.Code, http.StatusInternalServerError)
-}
-
-type GetOneTodoOk struct{}
-
-func (r *GetOneTodoOk) GetOneByID(id uuid.UUID) (*Todo, error) {
-	return &Todo{Task: "Learn Go"}, nil
 }
 
 func TestGetOneTodoOkValidIDParam(t *testing.T) {
@@ -147,7 +139,7 @@ func TestGetOneTodoOkValidIDParam(t *testing.T) {
 
 type UpdateOneTodoNotFound struct{}
 
-func (t UpdateOneTodoNotFound) UpdateOne(id uuid.UUID, todo Todo) (*Todo, error) {
+func (t UpdateOneTodoNotFound) UpdateOneByID(id uuid.UUID, todo Todo) (*Todo, error) {
 	return nil, nil
 }
 
@@ -201,7 +193,7 @@ func TestUpdateOneTodoNotFound(t *testing.T) {
 
 type UpdateOneTodoError struct{}
 
-func (r *UpdateOneTodoError) UpdateOne(id uuid.UUID, todo Todo) (*Todo, error) {
+func (r *UpdateOneTodoError) UpdateOneByID(id uuid.UUID, todo Todo) (*Todo, error) {
 	return nil, errors.New("oops!")
 }
 
@@ -218,7 +210,7 @@ func TestUpdateOneTodoError(t *testing.T) {
 
 type UpdateOneTodoOk struct{}
 
-func (r *UpdateOneTodoOk) UpdateOne(id uuid.UUID, todo Todo) (*Todo, error) {
+func (r *UpdateOneTodoOk) UpdateOneByID(id uuid.UUID, todo Todo) (*Todo, error) {
 	return &Todo{ID: id.String(), Task: "Accept Go"}, nil
 }
 
@@ -232,7 +224,7 @@ func TestUpdateOneTodoOk(t *testing.T) {
 	c.Request.Header.Add("content-type", "application/json")
 	handler(c)
 	assert.Equal(t, http.StatusOK, w.Code)
-	want, _ := (&UpdateOneTodoOk{}).UpdateOne(uuid.MustParse(todo.ID), todo)
+	want, _ := (&UpdateOneTodoOk{}).UpdateOneByID(uuid.MustParse(todo.ID), todo)
 	var got Todo
 	err := json.Unmarshal(w.Body.Bytes(), &got)
 	assert.Nil(t, err)

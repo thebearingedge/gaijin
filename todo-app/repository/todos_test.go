@@ -25,7 +25,7 @@ func TestEmptyTableGetsNoRows(t *testing.T) {
 		r := NewTodoRepository(tx)
 		todos, err := r.GetAll()
 		assert.Nil(t, err)
-		assert.Len(t, *todos, 0)
+		assert.Len(t, todos, 0)
 	})
 }
 
@@ -41,7 +41,7 @@ func TestPopulatedTableGetsAllRows(t *testing.T) {
 		assert.Nil(t, err)
 		todos, err := r.GetAll()
 		assert.Nil(t, err)
-		assert.Equal(t, len(*todos), 3)
+		assert.Len(t, todos, 3)
 	})
 }
 
@@ -72,7 +72,7 @@ func TestNonEmptyTableGetsOneTodo(t *testing.T) {
 func TestEmptyTableUpdatesOneNilTodo(t *testing.T) {
 	withRollback(t, func(tx *sql.Tx) {
 		r := NewTodoRepository(tx)
-		todo, err := r.UpdateOne(uuid.New(), Todo{Task: ""})
+		todo, err := r.UpdateOneByID(uuid.New(), Todo{Task: ""})
 		assert.Nil(t, err)
 		assert.Nil(t, todo)
 	})
@@ -87,7 +87,7 @@ func TestNonEmptyTableUpdatesOneTodo(t *testing.T) {
 			values ($1, 'Learn Go')
 		`, id)
 		assert.Nil(t, err)
-		todo, err := r.UpdateOne(id, Todo{Task: "Accept Go"})
+		todo, err := r.UpdateOneByID(id, Todo{Task: "Accept Go"})
 		assert.Nil(t, err)
 		assert.Equal(t, todo.Task, "Accept Go")
 	})

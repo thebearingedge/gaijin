@@ -38,7 +38,7 @@ func (r *TodoRepository) CreateOne(t Todo) (*Todo, error) {
 	return &todo, nil
 }
 
-func (r *TodoRepository) UpdateOne(id uuid.UUID, t Todo) (*Todo, error) {
+func (r *TodoRepository) UpdateOneByID(id uuid.UUID, t Todo) (*Todo, error) {
 	var todo Todo
 	row := r.db.QueryRow(`--sql
 		update "todos"
@@ -83,7 +83,7 @@ func (r *TodoRepository) GetOneByID(id uuid.UUID) (*Todo, error) {
 	return &todo, nil
 }
 
-func (r *TodoRepository) GetAll() (*[]Todo, error) {
+func (r *TodoRepository) GetAll() ([]Todo, error) {
 	rows, err := r.db.Query(`--sql
 		select "todoId",
 			   "task",
@@ -107,5 +107,5 @@ func (r *TodoRepository) GetAll() (*[]Todo, error) {
 		}
 		all = append(all, todo)
 	}
-	return &all, nil
+	return all, nil
 }

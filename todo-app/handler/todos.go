@@ -10,7 +10,7 @@ import (
 )
 
 type getAll interface {
-	GetAll() (*[]Todo, error)
+	GetAll() ([]Todo, error)
 }
 
 func GetAllTodos(t getAll) func(c *gin.Context) {
@@ -24,11 +24,11 @@ func GetAllTodos(t getAll) func(c *gin.Context) {
 	}
 }
 
-type getOneById interface {
+type getOneByID interface {
 	GetOneByID(id uuid.UUID) (*Todo, error)
 }
 
-func GetOneTodoByID(t getOneById) func(c *gin.Context) {
+func GetOneTodoByID(t getOneByID) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, ok := c.Params.Get("id")
 		if !ok {
@@ -77,11 +77,11 @@ func CreateOneTodo(t createOne) func(c *gin.Context) {
 	}
 }
 
-type updateOne interface {
-	UpdateOne(id uuid.UUID, todo Todo) (*Todo, error)
+type updateOneByID interface {
+	UpdateOneByID(id uuid.UUID, todo Todo) (*Todo, error)
 }
 
-func UpdateOneTodoByID(t updateOne) func(c *gin.Context) {
+func UpdateOneTodoByID(t updateOneByID) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		id, ok := c.Params.Get("id")
 		if !ok {
@@ -102,7 +102,7 @@ func UpdateOneTodoByID(t updateOne) func(c *gin.Context) {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		updated, err := t.UpdateOne(todoId, todo)
+		updated, err := t.UpdateOneByID(todoId, todo)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
