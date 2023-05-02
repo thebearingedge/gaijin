@@ -4,25 +4,27 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	. "todo-app/data"
-	. "todo-app/handlers"
+	"todo-app/data"
+	"todo-app/handler"
 	. "todo-app/repository"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
-func CreateApp(db DB) *gin.Engine {
+func CreateApp(db data.DB) *gin.Engine {
 	app := gin.New()
 
-	todosHandler := NewTodosHandler(NewTodosRepository(db))
+	repo := NewTodosRepository(db)
 
-	todosRouter := app.Group("/v1/todos")
+	todoHandler := handler.NewTodosHandler(repo)
 
-	todosRouter.GET("", todosHandler.GetAllTodos)
-	todosRouter.GET("/:id", todosHandler.GetOneTodoByID)
-	todosRouter.POST("", todosHandler.CreateOneTodo)
-	todosRouter.PUT("/:id", todosHandler.UpdateOneTodoByID)
+	todoRoutes := app.Group("/v1/todos")
+
+	todoRoutes.GET("", handler.GetAllTodos(repo))
+	todoRoutes.GET("/:id", handler.GetOneTodoById(repo))
+	todoRoutes.POST("", todoHandler.CreateOneTodo)
+	todoRoutes.PUT("/:id", handler.UpdateOneByID(repo))
 
 	return app
 }
