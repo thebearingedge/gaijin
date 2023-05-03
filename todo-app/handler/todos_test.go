@@ -194,7 +194,7 @@ func TestUpdateOneTodoBadRequestInvalidBody(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Params = append(c.Params, gin.Param{Key: "id", Value: uuid.NewString()})
-	c.Request = httptest.NewRequest("PUT", "/", bytes.NewBufferString("{}"))
+	c.Request = httptest.NewRequest(http.MethodPut, "/", bytes.NewBufferString("{}"))
 	h(c)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
@@ -207,7 +207,7 @@ func TestUpdateOneTodoNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Params = append(c.Params, gin.Param{Key: "id", Value: uuid.NewString()})
-	c.Request = httptest.NewRequest("PUT", "/", bytes.NewBufferString(`{"task":"Learn Go"}`))
+	c.Request = httptest.NewRequest(http.MethodPut, "/", bytes.NewBufferString(`{"task":"Learn Go"}`))
 	h(c)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
@@ -220,7 +220,7 @@ func TestUpdateOneTodoError(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Params = append(c.Params, gin.Param{Key: "id", Value: uuid.NewString()})
-	c.Request = httptest.NewRequest("PUT", "/", bytes.NewBufferString(`{"task":"Learn Go"}`))
+	c.Request = httptest.NewRequest(http.MethodPut, "/", bytes.NewBufferString(`{"task":"Learn Go"}`))
 	h(c)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
@@ -236,7 +236,7 @@ func TestUpdateOneTodoOk(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	todo := Todo{ID: uuid.NewString(), Task: "Accept Go"}
 	c.Params = append(c.Params, gin.Param{Key: "id", Value: todo.ID})
-	c.Request = httptest.NewRequest("PUT", "/", bytes.NewBufferString(`{"task":"Accept Go"}`))
+	c.Request = httptest.NewRequest(http.MethodPut, "/", bytes.NewBufferString(`{"task":"Accept Go"}`))
 	h(c)
 	assert.Equal(t, http.StatusOK, w.Code)
 	got := MustUnmarshal[Todo](w.Body.Bytes())
@@ -269,7 +269,7 @@ func TestCreateOneTodoInvalid(t *testing.T) {
 	h := CreateOneTodo(r)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest("POST", "/", bytes.NewBufferString("{}"))
+	c.Request = httptest.NewRequest(http.MethodPost, "/", bytes.NewBufferString("{}"))
 	h(c)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
@@ -281,7 +281,7 @@ func TestCreateOneTodoError(t *testing.T) {
 	h := CreateOneTodo(r)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest("POST", "/", bytes.NewBufferString(`{"task":"Learn Go"}`))
+	c.Request = httptest.NewRequest(http.MethodPost, "/", bytes.NewBufferString(`{"task":"Learn Go"}`))
 	h(c)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 }
@@ -294,7 +294,7 @@ func TestCreateOneTodoOk(t *testing.T) {
 	h := CreateOneTodo(r)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Request = httptest.NewRequest("PUT", "/", bytes.NewBufferString(`{"task":"Accept Go"}`))
+	c.Request = httptest.NewRequest(http.MethodPost, "/", bytes.NewBufferString(`{"task":"Accept Go"}`))
 	h(c)
 	assert.Equal(t, http.StatusCreated, w.Code)
 	got := MustUnmarshal[Todo](w.Body.Bytes())
