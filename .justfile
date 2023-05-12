@@ -52,3 +52,15 @@ db_up module:
 
 db_down module:
   migrate -source file://./{{module}}/migrations -database $DATABASE_URL down --all
+
+init module:
+  terraform -chdir={{module}} init
+
+plan module:
+  terraform -chdir={{module}} plan
+
+apply module:
+  terraform -chdir={{module}} apply
+
+destroy module:
+  terraform -chdir={{module}} destroy

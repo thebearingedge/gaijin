@@ -5,6 +5,7 @@ use (
 	./expressive-unit-tests
 	./http-repository
 	./http-stubs
+	./messaging
 	./simple-unit-tests
 	./todo-app
 	./web-server
